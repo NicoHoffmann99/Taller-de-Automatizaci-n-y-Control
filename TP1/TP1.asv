@@ -37,12 +37,12 @@ for i = 1:length(h_eqs)
     Plantas{i}=P_i;
     Labels{i}=['h de eq:' num2str(h_eqs(i)) 'm'];
 end
-fig_bode_plantas = figure();
+fig_plantasfigure();
 bode(Plantas{:})
 grid on;
 legend(Labels);
 title('Respuesta en frecuencia para distintas condiciones iniciales');
-saveas(fig_bode_plantas,'bode_plantas_h_dif.png','png');
+saveas(fig_planta,'bode_planta.png','png');
 
 %%
 fig_planta = figure();
@@ -65,17 +65,13 @@ pzplot(P);
 legend('planta control', 'planta');
 saveas(fig_pzk,'pzk_planta_control.png','png');
 
-fig_planta_control = figure();
+figure();
 grid on;
 bode(P*C);
-saveas(fig_planta_control,'bode_planta_control.png','png');
 
-fig_rta_esc = figure();
+figure();
 L=P*C;
 step(L/(1+L));
-saveas(fig_rta_esc,'rta_escalon.png','png');
-
-
 
 
 
