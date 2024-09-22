@@ -52,13 +52,13 @@ legend('Planta');
 title('Bode de la planta');
 saveas(fig_planta,'bode_planta.png','png');
 
-Kp=-4.536;
-Ki=-0.03208;
-C=Kp+Ki/s;
+%Kp=-4.536;
+%Ki=-0.03208;
+%C=Kp+Ki/s;
 
-%C=zpk([p],[0],-1);
+C=zpk([p],[0],-4);
+
 fig_pzk = figure();
-grid on;
 hold on;
 pzplot(C*P);
 pzplot(P);
@@ -66,13 +66,14 @@ legend('planta control', 'planta');
 saveas(fig_pzk,'pzk_planta_control.png','png');
 
 fig_planta_control = figure();
-grid on;
 bode(P*C);
+grid on;
 saveas(fig_planta_control,'bode_planta_control.png','png');
 
 fig_rta_esc = figure();
 L=P*C;
 step(L/(1+L));
+grid on;
 saveas(fig_rta_esc,'rta_escalon.png','png');
 
 
