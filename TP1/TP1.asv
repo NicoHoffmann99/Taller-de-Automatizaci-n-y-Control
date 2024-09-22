@@ -56,7 +56,7 @@ title('Bode de la planta');
 %Ki=-0.03208;
 %C=Kp+Ki/s;
 
-C=zpk([p],[0],-4)
+C=zpk([p],[0],-4);
 
 fig_pzk = figure();
 hold on;
