@@ -77,6 +77,8 @@ grid on;
 %saveas(fig_rta_esc,'rta_escalon.png','png');
 
 
+Ts=1000;
+C_d=c2d(C,Ts,'zoh');
 
 
 
