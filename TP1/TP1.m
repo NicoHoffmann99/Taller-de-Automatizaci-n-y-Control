@@ -18,7 +18,7 @@ beta=l_inf;
 %Chequeo del resultado de los cálculos teóricos
 %Puntos de Equilibrio
 h_eq=0.45;
-u_eq=Qi/(sqrt(2*g*h_eq)*A);
+u_eq=Qi/(sqrt(2*g*h_eq)*A)
 
 
 
@@ -37,19 +37,19 @@ for i = 1:length(h_eqs)
     Plantas{i}=P_i;
     Labels{i}=['h de eq:' num2str(h_eqs(i)) 'm'];
 end
-fig_bode_plantas = figure();
-bode(Plantas{:})
-grid on;
-legend(Labels);
-title('Respuesta en frecuencia para distintas condiciones iniciales');
+% fig_bode_plantas = figure();
+% bode(Plantas{:})
+% grid on;
+%legend(Labels);
+%title('Respuesta en frecuencia para distintas condiciones iniciales');
 %saveas(fig_bode_plantas,'bode_plantas_h_dif.png','png');
 
 %%
-fig_planta = figure();
-bode(P);
-grid on;
-legend('Planta');
-title('Bode de la planta');
+% fig_planta = figure();
+% bode(P);
+% grid on;
+% legend('Planta');
+% title('Bode de la planta');
 %saveas(fig_planta,'bode_planta.png','png');
 
 %Kp=-4.536;
@@ -58,28 +58,40 @@ title('Bode de la planta');
 
 C=zpk([p],[0],-4)
 
-fig_pzk = figure();
-hold on;
-pzplot(C*P);
-pzplot(P);
-legend('planta control', 'planta');
+%     fig_pzk = figure();
+%     hold on;
+%     pzplot(C*P);
+%     pzplot(P);
+%     legend('planta control', 'planta');
+
 %saveas(fig_pzk,'pzk_planta_control.png','png');
-
-fig_planta_control = figure();
-bode(P*C);
-grid on;
-%saveas(fig_planta_control,'bode_planta_control.png','png');
-
-fig_rta_esc = figure();
-L=P*C;
-step(L/(1+L));
-grid on;
+% 
+% fig_planta_control = figure();
+% bode(P*C);
+% grid on;
+% %saveas(fig_planta_control,'bode_planta_control.png','png');
+% 
+% fig_rta_esc = figure();
+% L=P*C;
+% step(L/(1+L));
+% grid on;
 %saveas(fig_rta_esc,'rta_escalon.png','png');
 
 
-Ts=1000;
+a = 1; b = 0.00237; k = -4;
+Ts=1;
 C_d=c2d(C,Ts,'zoh');
+z = tf('z',Ts)
 
+Cd_f = (-4*z+3.99052)/(z-1)
+% Forward Euler
+cd_fe = tf([k, -k+k*b*Ts],[1,-1],Ts);
+
+% Backward Euler
+cd_be = tf([k*(1+b*Ts),-k],[1,-1],Ts);
+
+% Tustin
+cd_t = c2d(C,Ts,'tustin');
 
 
 
