@@ -18,7 +18,7 @@ beta=l_inf;
 %Chequeo del resultado de los cálculos teóricos
 %Puntos de Equilibrio
 h_eq=0.45;
-u_eq=Qi/(sqrt(2*g*h_eq)*A)
+u_eq=Qi/(sqrt(2*g*h_eq)*A);
 
 
 
@@ -56,7 +56,7 @@ end
 %Ki=-0.03208;
 %C=Kp+Ki/s;
 
-C=zpk([p],[0],-4)
+C=zpk([p],[0],-4);
 
 %     fig_pzk = figure();
 %     hold on;
@@ -80,15 +80,16 @@ C=zpk([p],[0],-4)
 
 a = 1; b = 0.00237; k = -4;
 Ts=1;
+C = k * (s + b) / s;
 C_d=c2d(C,Ts,'zoh');
-z = tf('z',Ts)
+z = tf('z',Ts);
 
-Cd_f = (-4*z+3.99052)/(z-1)
+Cd_f = (-4*z+3.99052)/(z-1);
 % Forward Euler
 cd_fe = tf([k, -k+k*b*Ts],[1,-1],Ts);
 
 % Backward Euler
-cd_be = tf([k*(1+b*Ts),-k],[1,-1],Ts);
+cd_be = tf([k*(a+b*Ts),-k],[1,-1],Ts);
 
 % Tustin
 cd_t = c2d(C,Ts,'tustin');
