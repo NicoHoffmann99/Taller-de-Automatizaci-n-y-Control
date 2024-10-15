@@ -1,9 +1,6 @@
-bias=1.9;
+bias=2.43;
+vector_filtrado = out.d3(900:1400)+bias;
 
-
-data = readtable('d3_mediciones.csv');
-vector_filtrado = data.Var1(11:end);
-vector_filtrado=out.d3(1519:1755)+bias; %-out.d3(1755);
 N=length(vector_filtrado);
 t=linspace(0,N*0.01,N);
 
@@ -13,12 +10,6 @@ X=[vector_filtrado(2:(N-1)),vector_filtrado(1:(N-2))];
 %pseudo_inv = pinv(X);
 w=pinv(X)*Y;
 z=roots([1 -w(1) -w(2)]);
-rr=zeros(N,1);
-rr(1)=vector_filtrado(1);
-rr(2)=vector_filtrado(2);
-for i=3:N
-    rr(i)=w(1)*rr(i-1)+w(2)*rr(i-2);
-end
 
 T=0.01;
 P_1 = log(z(1))/T
@@ -26,8 +17,8 @@ P_2 = log(z(2))/T
 
 s = tf("s");
 H = zpk([],[P_1 P_2], 1);
-% figure();
-% pzplot(H);
+figure();
+pzplot(H);
 
 [NUM,DEM]=tfdata(H,'v');
 beta = DEM(3);
@@ -38,10 +29,9 @@ C=[1 0];
 D=0;
 
 sys = ss(A,B,C,D);
-[salida,tiempo] = initial(sys,[vector_filtrado(1),0],t);
+[salida,tiempo] = initial(sys,[17.57+bias,0],t);
 figure();
 hold on;
 grid on;
-r=(17.57+bias)*exp(real(P_1).*t).*cos(imag(P_1).*t);
 plot(tiempo,salida);
 plot(t,vector_filtrado);

@@ -12,7 +12,7 @@ Adafruit_MPU6050 mpu;
 float angulo_giro_x=0;
 float angulo_ace_x=0;
 float angulo_complementario=0;
-float alpha=0.2;
+float alpha=0.1;
 float periodo=0.01;
 float pi=3.1415;
 
