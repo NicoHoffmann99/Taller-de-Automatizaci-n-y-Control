@@ -38,43 +38,19 @@ void loop()
   
   //=========================
   //CONTROL
-  static float e_prev_forw = 0;
-  static float e_prev_tust = 0;
-  static float e_prev_back = 0;
 
   static float e_prev = 0;
-
-  //valor inicial accion de control instante anterior:
-  static float u_prev_forw = 0;
-  static float u_prev_tust = 0;
-  static float u_prev_back = 0;
-
   static float u_prev = 0;
-  //float e_back = (h_ref - h);
 
   float e_actual = (h_ref - h);
 
   //back
   //u = u_prev - k * a * e_prev + k * (a + b * Ts) * e_actual;
   //forw
-  //u = u_prev + k * e_prev * (b * Ts - a) + k * a * e_actual;
+  u = u_prev + k * e_prev * (b * Ts - a) + k * a * e_actual;
   //tusting
-  u = u_prev + (k * a + (Ts * b/2)) * e_actual + ((Ts * b/2) - k * a) * e_prev;
+  //u = u_prev + (k * a + (Ts * b/2)) * e_actual + ((Ts * b/2) - k * a) * e_prev;
 
-  /*back
-  u = u_prev - k * a * e_prev + k * (a + b * Ts) * e_actual ;
-
-  //actualizo el valor previo
-  e_prev_back = e_back;
-  u_prev_back = u;
-  */
-
-  //u = u_prev_forw + k * e_prev_forw * (b * Ts - a) + k * a * e_forw;
-  //u = e_forw * k + (b*Ts-1) * e_prev* k + u_prev;
-  
-  //u = u_prev_forw + e_forw * k - e_prev_forw* k + k * b * Ts
-
-  //actualizo el valor previo
   e_prev = e_actual;
   u_prev = u;
   

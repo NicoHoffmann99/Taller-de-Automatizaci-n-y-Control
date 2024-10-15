@@ -19,16 +19,6 @@ float pi=3.1415;
 void setup(void) {
   Serial.begin(115200);
   mpu.begin();
-  // Try to initialize
-  /*
-  if (!mpu.begin()) {
-    Serial.println("Failed to find MPU6050 chip");
-    while (1) {
-      delay(10);
-    }
-  }
-  Serial.println("MPU6050 Found!");
-  */
   mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
   mpu.setGyroRange(MPU6050_RANGE_500_DEG);
   mpu.setFilterBandwidth(MPU6050_BAND_44_HZ);
@@ -46,7 +36,9 @@ void loop() {
   angulo_giro_x= angulo_complementario + periodo*g.gyro.x;
   angulo_ace_x= atan2(a.acceleration.y,a.acceleration.z);
   angulo_complementario= (1-alpha)*angulo_giro_x + angulo_ace_x*alpha;
+
   matlab_send((180*angulo_giro_x)/pi,(180*angulo_ace_x)/pi,(180*angulo_complementario)/pi,0,0,0,dif);
+  
   //Temperatura: temp.temperature
   unsigned long t_final= micros();
   dif = t_final - t_inicial;

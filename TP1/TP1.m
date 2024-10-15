@@ -80,7 +80,7 @@ C=zpk([p],[0],-4);
 
 a = 1; b = 0.00237; k = -4;
 Ts=1;
-C = k * (s + b) / s;
+%C = k * (s + b) / s;
 C_d=c2d(C,Ts,'zoh');
 z = tf('z',Ts);
 
