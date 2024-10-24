@@ -16,15 +16,12 @@ X=[vector_filtrado(2:(N-1)),vector_filtrado(1:(N-2))];
 %pseudo_inv = pinv(X);
 w=pinv(X)*Y;
 z=roots([1 -w(1) -w(2)]);
-
-%{
 rr=zeros(N,1);
 rr(1)=vector_filtrado(1);
 rr(2)=vector_filtrado(2);
 for i=3:N
     rr(i)=w(1)*rr(i-1)+w(2)*rr(i-2);
 end
-%}
 
 T=0.01;
 P_1 = log(z(1))/T
