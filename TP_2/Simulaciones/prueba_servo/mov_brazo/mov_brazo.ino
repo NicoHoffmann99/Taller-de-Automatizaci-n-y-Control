@@ -63,7 +63,7 @@ void loop(){
   float pos_pote = analogRead(sensor);
   //float angulo = map(angulo, -90, 90, 60, 260);
   static int cambiar=0;
-  if (cambiar == 500) {
+  if (cambiar == 1000) {
     if (angulo_referencia==0){
       angulo_referencia=30;
     }
@@ -121,3 +121,4 @@ void matlab_send(float ace1, float ace2, float ace3, float giro1, float giro2, f
 void timer_callback()
 {
 }
+
