@@ -63,7 +63,7 @@ void loop(){
   float pos_pote = analogRead(sensor);
   //float angulo = map(angulo, -90, 90, 60, 260);
   static int cambiar=0;
-  if (cambiar == 1000) {
+  if (cambiar == 500) {
     if (angulo_referencia==0){
       angulo_referencia=30;
     }
