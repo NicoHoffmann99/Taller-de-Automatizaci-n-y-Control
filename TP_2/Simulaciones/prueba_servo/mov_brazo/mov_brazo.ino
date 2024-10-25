@@ -55,6 +55,12 @@ void setup()
 }
 
 void loop(){
+  //imu recopilacion sensor
+  sensors_event_t a, g, temp;
+  mpu.getEvent(&a, &g, &temp);
+
+
+
   unsigned long tiempo_inicial=millis();
   
   //movimiento brazo
@@ -81,16 +87,12 @@ void loop(){
 
 
   //imu
-  
-  sensors_event_t a, g, temp;
-  mpu.getEvent(&a, &g, &temp);
-
   angulo_giro_x= angulo_complementario + periodo*g.gyro.x;
   angulo_ace_x= atan2(a.acceleration.y,a.acceleration.z);
   angulo_complementario= (1-alpha)*angulo_giro_x + angulo_ace_x*alpha;
 
 
-  //matlab_send(angulo_referencia,phi_brazo,(180*angulo_complementario)/pi,0,0,0,0);
+  matlab_send(angulo_referencia,phi_brazo,(180*angulo_complementario)/pi,0,0,0,0);
   
   
   unsigned long tiempo_final=millis();
