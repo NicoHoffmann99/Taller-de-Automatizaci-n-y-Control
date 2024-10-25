@@ -34,7 +34,7 @@ int pote_menos_50=232; //pwm 218
 //Los límites de phi son -50 y 50 y estan asociados correspondientemente a duty_max y duty_min.
 int sensor=14;
 int centro = (duty_max + duty_min)/2;
-int angulo_referencia = 0;
+int angulo_referencia = 30;
 void setup()
 { 
   
@@ -63,7 +63,7 @@ void loop(){
   float pos_pote = analogRead(sensor);
   //float angulo = map(angulo, -90, 90, 60, 260);
   static int cambiar=0;
-  if (cambiar == 500) {
+  if (cambiar == 1000) {
     if (angulo_referencia==0){
       angulo_referencia=30;
     }
@@ -81,21 +81,21 @@ void loop(){
 
 
   //imu
-  
   sensors_event_t a, g, temp;
+  
   mpu.getEvent(&a, &g, &temp);
 
   angulo_giro_x= angulo_complementario + periodo*g.gyro.x;
   angulo_ace_x= atan2(a.acceleration.y,a.acceleration.z);
   angulo_complementario= (1-alpha)*angulo_giro_x + angulo_ace_x*alpha;
 
-
-  //matlab_send(angulo_referencia,phi_brazo,(180*angulo_complementario)/pi,0,0,0,0);
+  
+  matlab_send(angulo_referencia,phi_brazo,(180*angulo_complementario)/pi,0,0,0,0);
   
   
   unsigned long tiempo_final=millis();
   
-  Serial.println(tiempo_final-tiempo_inicial);
+  //Serial.println(tiempo_final-tiempo_inicial);
   delay(10-(tiempo_final-tiempo_inicial));
 }
 
