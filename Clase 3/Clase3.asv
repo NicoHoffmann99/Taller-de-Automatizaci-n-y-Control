@@ -25,7 +25,7 @@ function [NUM,DEN] = plots_estimaciones(muestras)
  P1=real(P1)/2+1i*imag(P1)
 P2=real(P2)/2+1i*imag(P2)
 
- %Transferencia
+ %Transferencia/polos
  H = zpk([],[P1 P2],1);
 
  %saco data y armo sistema.

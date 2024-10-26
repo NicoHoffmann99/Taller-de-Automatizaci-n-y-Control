@@ -26,15 +26,15 @@ float pi=3.1415;
 
 //int duty_max=21;
 //int duty_min=265;
-int duty_min=117;
-int duty_max=218;
-int pote_50=566; //pwm 117
-int pote_menos_50=232; //pwm 218
+int duty_min=106;
+int duty_max=230;
+int pote_50=606; //pwm 117
+int pote_menos_50=203; //pwm 218
 
 //Los límites de phi son -50 y 50 y estan asociados correspondientemente a duty_max y duty_min.
 int sensor=14;
 int centro = (duty_max + duty_min)/2;
-int angulo_referencia = 30;
+int angulo_referencia = 0;
 void setup()
 { 
   
@@ -56,34 +56,38 @@ void setup()
 
 void loop(){
   unsigned long tiempo_inicial=millis();
+  //imu
+  sensors_event_t a, g, temp;
   
+  mpu.getEvent(&a, &g, &temp);
+
   //movimiento brazo
   float duty_ang = map(angulo_referencia, 50,-50,duty_min,duty_max);
-  float phi_brazo =map(analogRead(sensor),235,567,-50,50);//basicamente queremos nuestro angulo limite de -50 a 50 y vimos la correspondencia con el valor q indica el pote ya armado en el pendulo.
+  float phi_brazo =map(analogRead(sensor),pote_menos_50,pote_50,-50,50);//basicamente queremos nuestro angulo limite de -50 a 50 y vimos la correspondencia con el valor q indica el pote ya armado en el pendulo.
   float pos_pote = analogRead(sensor);
   //float angulo = map(angulo, -90, 90, 60, 260);
   static int cambiar=0;
-  if (cambiar == 1000) {
+  if (cambiar == 1700) {
     if (angulo_referencia==0){
       angulo_referencia=30;
+      Serial.println(phi_brazo);
+      Serial.println(pos_pote);
+      
     }
     else{
       angulo_referencia=0;
+      Serial.println(phi_brazo);
+      Serial.println(pos_pote);
     }
     cambiar = 0;
   }
   cambiar++;
   Timer1.pwm(PWMoutput,duty_ang);
-  //Serial.println(phi_brazo);
-  //Serial.println(angulo_referencia);
-  //Serial.println(pos_pote);
   
+  Serial.print('.');
 
 
-  //imu
-  sensors_event_t a, g, temp;
-  
-  mpu.getEvent(&a, &g, &temp);
+ 
 
   angulo_giro_x= angulo_complementario + periodo*g.gyro.x;
   angulo_ace_x= atan2(a.acceleration.y,a.acceleration.z);

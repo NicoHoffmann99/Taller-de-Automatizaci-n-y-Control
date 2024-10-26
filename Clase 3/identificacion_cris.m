@@ -4,7 +4,7 @@
 %exporto a csv
 %d3  = out.d3+bias;
 bias = 1.9;
-writematrix(out.d3(1510:1800)+bias, 'd3_mediciones.csv');
+writematrix(out.d2(8500:8600), 'd3_mediciones.csv');
 
 % Leer el archivo CSV como una matriz (sin encabezados)
 data = readtable('d3_mediciones.csv');
