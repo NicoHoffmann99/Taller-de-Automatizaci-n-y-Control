@@ -6,7 +6,7 @@ from sklearn.linear_model import LinearRegression
 import cmath as cm
 
 
-pendulo=np.loadtxt("Clase 3\m_pend.csv",delimiter=',')
+pendulo=np.loadtxt("m_pend.csv",delimiter=',')
 #pendulo=pendulo[np.argmax(pendulo):]
 
 def parametros_recta_de_regresion(X,Y):

@@ -28,7 +28,7 @@ P_1 = log(z(1))/T
 P_2 = log(z(2))/T
 
 s = tf("s");
-H = zpk([],[P_1 P_2], 1);
+H = zpk([0],[P_1 P_2], 1);
 % figure();
 % pzplot(H);
 
