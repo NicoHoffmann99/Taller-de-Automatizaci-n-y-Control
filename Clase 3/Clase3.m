@@ -6,7 +6,7 @@ bias=1.5;
 %cuadrados minimos. Devuelve la funcion de transferencia de la estimación
 %obtenida por cuadrados minimos.
 
-function [NUM,DEN] = plots_estimaciones(muestras)
+function [NUM,DEN] = plots_estimaciones(muestras,alta)
  N = length(muestras);
  time = linspace(0,N*0.01,N);
  
@@ -29,14 +29,19 @@ P2=real(P2)/2+1i*imag(P2)
  H = zpk([],[P1 P2],1);
 
  %saco data y armo sistema.
- [NUM,DEN]=tfdata(H,'v');
+ [NUM,DEN]=tfdata(H_total,'v');
  beta = DEN(3); alpha = DEN(2);
  A=[0 1; -beta -alpha]; B=[0; 1];
  C=[1 0]; D=0;
 
  sys = ss(A,B,C,D);
- [salida,tiempo] = initial(sys,[muestras(1),0],time);
+ if(alta == 1)
+      [salida,tiempo] = initial(sys,[muestras(1),0],time);
+ else
 
+    opt = stepDataOptions('StepAmplitude', 30);
+    [salida,tiempo] = step(sys,opt);
+ end
  figure();
  hold on;
  grid on;
@@ -65,9 +70,9 @@ m_ref = data_r.Var1;
 
 
 
-[num_p,den_p] = plots_estimaciones(m_pend);
-[num_b,den_b] = plots_estimaciones(m_brazo);
-[num_r,den_r] = plots_estimaciones(m_ref);
+[num_p,den_p] = plots_estimaciones(m_pend,0);
+[num_b,den_b] = plots_estimaciones(m_brazo,1);
+[num_r,den_r] = plots_estimaciones(m_ref,1);
 
 
 
