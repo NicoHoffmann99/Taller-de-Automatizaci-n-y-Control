@@ -94,7 +94,7 @@ void loop(){
   angulo_complementario= (1-alpha)*angulo_giro_x + angulo_ace_x*alpha;
 
   
-  matlab_send(angulo_referencia,phi_brazo,(180*angulo_complementario)/pi,0,0,0,0);
+  matlab_send(angulo_referencia,phi_brazo,(180*angulo_complementario)/pi,0);
   
   
   unsigned long tiempo_final=millis();
@@ -103,7 +103,7 @@ void loop(){
   delay(10-(tiempo_final-tiempo_inicial));
 }
 
-void matlab_send(float ace1, float ace2, float ace3, float giro1, float giro2, float giro3, float temp){
+void matlab_send(float ace1, float ace2, float ace3, float ace4){
   Serial.write("abcd");
   byte * b = (byte *) &ace1;
   Serial.write(b,4);
@@ -111,14 +111,8 @@ void matlab_send(float ace1, float ace2, float ace3, float giro1, float giro2, f
   Serial.write(b,4);
   b = (byte *) &ace3;
   Serial.write(b,4);
-  b = (byte *) &giro1;
-  Serial.write(b,4);
-  b = (byte *) &giro2;
-  Serial.write(b,4);
-  b = (byte *) &giro3;
-  Serial.write(b,4);
-  b = (byte *) &temp;
-  Serial.write(b,4);
+  b = (byte *) &ace4;
+
   //etc con mas datos tipo float. Tambien podría pasarse como parámetro a esta funcion un array de floats.
 }
 
