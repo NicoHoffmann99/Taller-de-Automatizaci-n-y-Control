@@ -24,8 +24,10 @@ for i=3:N
 end
 
 T=0.01;
-P_1 = log(z(1))/T
-P_2 = log(z(2))/T
+P_1 = log(z(1))/T;
+P_2 = log(z(2))/T;
+%P_1 = -0.2076/2 + 7.3044i
+%P_2 = -0.2076/2 - 7.3044i
 
 s = tf("s");
 H = zpk([],[P_1 P_2], 1);
@@ -46,5 +48,13 @@ figure();
 hold on;
 grid on;
 r=(17.57+bias)*exp(real(P_1).*t).*cos(imag(P_1).*t);
+figure();
+title('Planta del péndulo sobreamortiguada')
 plot(tiempo,salida);
+hold on;
 plot(t,vector_filtrado);
+grid on;
+title('Planta del péndulo ajustada');
+legend('Modelado', 'Real');
+xlabel('Tiempo');  
+ylabel('Theta(Grados)');  
