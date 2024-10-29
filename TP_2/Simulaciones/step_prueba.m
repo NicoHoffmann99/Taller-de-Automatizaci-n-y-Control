@@ -19,20 +19,27 @@ time = linspace(0,N*0.01,N);
 
 H_1 = (h0*w^2)/(s^2+s*(w/Q)+w^2);
 opt = stepDataOptions('StepAmplitude', 30);
-[salida,tiempo] = step(H_1,opt);
+[salida,tiempo] = step(H_1,1,opt);
 figure();
 hold on;
+grid on;
 plot(tiempo,salida);
 plot(time,m_b);
+xlabel('Tiempo(s)');  % Opcional: añade etiquetas para los ejes
+ylabel('Phi(Grados)');
+title('Respuesta del Brazo');
+legend('Modelo','Real')
 
 p1 =- w/(2*Q) + w*sqrt((1/(2*Q))^2-1);
 p2 = - w/(Q*2) - w*sqrt((1/(2*Q))^2-1);
 polos_brazo = [p1 p2];
 
+%Utilizamos polos del péndulo con parte real modificada
 p_1 = -0.13247559170053874+1i*7.302437935150943;
 p_2 = -0.13247559170053874-1i*7.302437935150943;
+
 polos_pend = [p_1 p_2];
-k = 3/5;
+k = 0.7;
 H_2 = zpk([0 0], polos_pend,k);
 
 H_total = H_1 * H_2;
@@ -43,17 +50,20 @@ H_total = H_1 * H_2;
  sys_h = ss(tf(NUM_PEND,DEN_PEND));
  
 
-[salida_2,tiempo_2] = initial(sys_h,[15,0,0,0],time_p);
+%[salida_2,tiempo_2] = initial(sys_h,[15,0,0,0],time_p);
 
 figure();
 hold on;
 grid on;
 plot(tiempo_total,salida_total);
 plot(time_p,m_p);
-a = 1;
-plot(tiempo_2(a:end),salida_2(a:end),'--');
-
-legend({'estimado','medido'},'Location','southwest');
+%a = 1;
+%plot(tiempo_2(a:end),salida_2(a:end),'--');
+title('Respuesta a un escalón de 30 grados')
+xlabel('Tiempo(s)');  % Opcional: añade etiquetas para los ejes
+ylabel('Theta(Grados)');
+xlim([0,20]);
+legend({'Modelo','Real'},'Location','southwest');
 
 
 

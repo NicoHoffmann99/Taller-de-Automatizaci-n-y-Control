@@ -14,6 +14,7 @@ Adafruit_MPU6050 mpu;
 
 
 //Condiciones inciales
+float b;
 
 //La condicion inicial del giroscopio no sería necesaria
 float angulo_giro_x=0;
@@ -45,7 +46,7 @@ static float Ts=0.01;
 //Controlador
 float Kp = 0.3;
 float Ki = 0;
-float Kd = 0.0001;
+float Kd = 0.0005;
 
 
 void setup()
@@ -63,9 +64,12 @@ void setup()
   mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
   mpu.setGyroRange(MPU6050_RANGE_500_DEG);
   mpu.setFilterBandwidth(MPU6050_BAND_44_HZ);
-
+  
+  b=get_bias();
   delay(100);
 }
+
+
 
 void loop(){
   unsigned long tiempo_inicial=millis();
@@ -78,7 +82,8 @@ void loop(){
   float duty_ang = map(angulo_referencia, 50,-50,duty_min,duty_max);
   float phi_brazo =map(analogRead(sensor),pote_menos_50,pote_50,-50,50);//basicamente queremos nuestro angulo limite de -50 a 50 y vimos la correspondencia con el valor q indica el pote ya armado en el pendulo.
   float pos_pote = analogRead(sensor);
-  //float angulo = map(angulo, -90, 90, 60, 260);
+
+  /*  
   static int cambiar=0;
   if (cambiar == 1700) {
     if (angulo_referencia==0){
@@ -95,9 +100,10 @@ void loop(){
     cambiar = 0;
   }
   cambiar++;
-  Timer1.pwm(PWMoutput,map(u, 50,-50,duty_min,duty_max));
+  */
+  Timer1.pwm(PWMoutput,map(u,50,-50,duty_min,duty_max));
   
-  Serial.print('.');
+  //Serial.print('.');
 
 
  
@@ -107,7 +113,7 @@ void loop(){
   angulo_complementario= (1-alpha)*angulo_giro_x + angulo_ace_x*alpha;
 
   
-  //matlab_send(angulo_referencia,phi_brazo,(180*angulo_complementario)/pi,0,0,0,0);
+
   
   //Control
   
@@ -117,40 +123,42 @@ void loop(){
   static float e_prev = 0;
   static float u_prev = 0;
   static float e_acum = 0;
-  e = angulo_referencia - angulo_complementario*(180/pi);
-  //u = e / Kp; 
+  e = angulo_referencia - (angulo_complementario*(180/pi)-b);
+  //u = e * Kp; 
 
   //PI y PD
   //Back
   
   e_acum = e_acum + Ts * e;
-  u = Kp * e + Ki * e_acum + Kd * (e - e_prev)/Ts;
+  //u = Kp * e + Ki * e_acum + Kd * (e - e_prev)/Ts;
 
   //tusting
   //u = u_prev + (Kp + (Ts * (Ki/(Kp*2)))) * e + ((Ts * Ki / (Kp*2)) - Kp) * e_prev;
   static float I_acum = 0;
   static float D_acum = 0;
-  /*
+  
   u = Kp * e + Ki *(I_acum+ (Ts * e)/2 + (Ts * e_prev)/2) + Kd * (2*(e - e_prev)/Ts - D_acum);
   I_acum = I_acum + (Ts * e)/2 + (Ts * e_prev)/2;
   D_acum = 2*(e - e_prev)/Ts - D_acum;
-  */
+  
 
 
 
   u_prev = u;
   e_prev = e;
   
+  matlab_send(u,e,(180*angulo_complementario)/pi - b,0,0,0,0);
 
   unsigned long tiempo_final=millis();
   static int cont = 0;
   if(cont == 10){
-    Serial.println('.');
-    Serial.println(u);
-    Serial.println(e);
-    Serial.println((180/pi)*angulo_complementario);
-    Serial.println(map(u, 50,-50,duty_min,duty_max));
-    Serial.println(tiempo_final-tiempo_inicial);
+    //Serial.println('.');
+    //Serial.println(u);
+    //Serial.println(e);
+    //Serial.println(angulo_complementario*(180/pi)-b);
+    //Serial.println(map(u, 50,-50,duty_min,duty_max));
+    //Serial.println(map(analogRead(sensor),pote_menos_50,pote_50,-50,50));
+    //Serial.println(tiempo_final-tiempo_inicial);
     cont = 0;
   }
   cont++;
@@ -182,3 +190,18 @@ void timer_callback()
 {
 }
 
+float get_bias(){
+  float bias=0;
+  for(int i=0;i<=100;i++){
+    unsigned long tiempo_inicial=millis();
+    sensors_event_t a, g, temp;
+    mpu.getEvent(&a, &g, &temp);
+    angulo_giro_x= angulo_complementario + periodo*g.gyro.x;
+    angulo_ace_x= atan2(a.acceleration.y,a.acceleration.z);
+    bias += (1-alpha)*angulo_giro_x + angulo_ace_x*alpha;
+    unsigned long tiempo_final=millis();
+    delay(10-(tiempo_final-tiempo_inicial));
+  }
+  Serial.println(bias*(180/pi));
+  return (bias*(180/pi))/float(10);
+}
