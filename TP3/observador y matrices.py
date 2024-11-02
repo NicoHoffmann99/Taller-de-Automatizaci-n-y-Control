@@ -1,6 +1,6 @@
 import control as ct
 import numpy as np
-import scipy as sc
+from scipy import signal
 import cmath as cm
 #Parametros
 Q = 1/2
@@ -24,7 +24,7 @@ Ts=0.01
 P=ct.zpk([0, 0], polos, -k)
 
 num, den = ct.tfdata(P)
-print(np.array(num[0]))
-print(den)
-A, B, C, D = ct.tf2ss(num, den)
+num = [-170.57047,0,0]
+den = [1.00000000e+00, 3.14849512e+01, 3.05287026e+02, 1.72993434e+03, 1.29982373e+04]
+A, B, C, D = signal.tf2ss(num, den)
 print(A)
