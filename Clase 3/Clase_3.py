@@ -53,6 +53,9 @@ plt.plot(t,pendulo)
 plt.grid()
 plt.show()
 
+P=ct.zpk([0, 0], [p1, p2, -15.61 -15.61])
+
+
 
 
 
