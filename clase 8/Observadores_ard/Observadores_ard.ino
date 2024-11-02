@@ -10,10 +10,10 @@ Adafruit_MPU6050 mpu;
 
 //cargo valores matrices digitales
 
-float Ad[2][2] = {{0.9782, -0.6979},{0.01, 1}};
-float Cd[2] = {0, 1};
-float L[2] = {15.0613, 0.2444};
+float Ad[2][2] = {{1.0, 0.01},{-0.5337,0.9974}};
 
+float Cd[2] = {1, 0};
+float L[2] = {0.1416, 0.014};
 
 //La condicion inicial del giroscopio no sería necesaria
 float angulo_giro_x=0;
@@ -61,7 +61,7 @@ void loop() {
   float ang_comp = (180*angulo_complementario)/pi;  
   float vel_ang  = velocidad_pendulo * 180 / pi;
 
-  ang_k1 = Ad[0][0] * ang_k + Ad[0][1] * vang_k + L[0] * ( - ang_k); //sin Bd pq no controlamos todavia
+  ang_k1 = Ad[0][0] * ang_k + Ad[0][1] * vang_k + L[0] * ( angulo_complementario- ang_k); //sin Bd pq no controlamos todavia
   vang_k1 = Ad[1][0] * ang_k + Ad[1][1] * vang_k + L[1] * (angulo_complementario - ang_k);
 
   
@@ -82,6 +82,7 @@ void loop() {
   //Temperatura: temp.temperature
   unsigned long t_final= micros();
   dif = t_final - t_inicial;
+  Serial.print(10000-dif);
   delayMicroseconds(10000-(t_final-t_inicial));
 
 }
