@@ -33,9 +33,9 @@ int pote_menos_50=203; //pwm 218
 
 //pruebo con notacion vectorial
 float tita = 0;float phi = 0;float tita_p = 0;float phi_p = 0;
-float x_k = [tita,phi,tita_p,phi_p]; 
-float x_k1 = [tita,phi,tita_p,phi_p];
-float y_m = [tita,phi,tita_p,phi_p]; 
+float x_k[4] = {tita,phi,tita_p,phi_p}; 
+float x_k1[4] = {tita,phi,tita_p,phi_p};
+float y_m[4] = {tita,phi,tita_p,phi_p}; 
 
 //valores para filtro compl
 float alpha=0.1;

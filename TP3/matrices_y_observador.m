@@ -34,8 +34,9 @@ D_d = D;
 polos_observador_real = real([p1 p2 p_1 p_2]);
 polos_observador_imaginario = imag([p1 p2 p_1 p_2])*1i;
 
-P_Z = exp(polos_observador_real.*Ts);
-L = place(A_d',C',P_Z);
+factor_polos = 5;
+P_Z = exp(factor_polos*polos_observador_real.*Ts);
+L = place(A_d',C',P_Z)';
 
-O = (A_d - L'*C_d);
+O = (A_d - L*C_d);
 ava =eig(O);

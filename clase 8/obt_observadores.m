@@ -6,7 +6,7 @@ T = 0.01;
 
 polos_c = 5 * polos; %con esto hago que sean mas rapidos.
 
-%P_Z = exp(polos_c.*T); 
+%P_Z = exp(real(polos_c).*T); 
 P_Z=[0.920 0.9270];
 s = tf('s');
 
@@ -14,7 +14,7 @@ H = zpk([],[polos(2) polos(1)],1);
 
 [NUM,DEN]=tfdata(H,'v');
 [A,B,C,D] = tf2ss(NUM,DEN);
-A = [A(2,2) A(2,1); A(1,2) A(1,1)];
+A_t = [A(2,2) A(2,1); A(1,2) A(1,1)];
 
 
 A_dt = eye(size(A_t,1))+A_t.*T;
@@ -35,3 +35,12 @@ A_r  = [1.0 0.01;-0.5337 0.9974];
 C_r = [1 0];
 
 L_r = place(A_r',C_r',P_Z)';
+
+
+%Sumando Observador del Sesgo
+A_t_b = [A(2,2) A(2,1), 0; A(1,2) A(1,1), 0; 0, 0, 1];
+C_t_b = [1, 0, 0; 0, 1, 1];
+A_d_b = eye(size(A_t_b,1))+A_t_b.*T;
+
+P_Z_bias=[0.8199, 0.8199, 0.95];
+L_b = place(A_d_b',C_t_b',P_Z_bias)';

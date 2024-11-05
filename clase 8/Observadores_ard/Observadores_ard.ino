@@ -8,24 +8,33 @@
 Adafruit_MPU6050 mpu;
 
 
+//EJERCICIO 1
 //cargo valores matrices digitales
-
+/*
 float Ad[2][2] = {{1.0, 0.01},{-0.5337,0.9974}};
-
 float Cd[2] = {1, 0};
 float L[2] = {0.1416, 0.014};
+*/
+
+//EJERCICIO 2
+float Ad[3][3] = {{1.0, 0.01, 0},{-0.5337,0.9974, 0}, {0, 0, 1}};
+float Cd[2][3] = {{1, 0, 0}, {0, 1, 1}};
+float L[3][2] = {{0.2271, -0.0012},{0.3008, 0.0218},{-0.8470, 0.2022}};
 
 //La condicion inicial del giroscopio no sería necesaria
 float angulo_giro_x=0;
 float angulo_ace_x=0;
 float angulo_complementario=0;
 float velocidad_pendulo = 0;
+float bias = 10 * (3.1415/180);
 
 //inicializado de estimadores
 float vang_k = 0;
 float vang_k1 = 0;
 float ang_k = 0;
 float ang_k1 = 0;
+float bias_k = 0;
+float bias_k1 = 0;
 
 //valores para filtro compl
 float alpha=0.1;
@@ -61,28 +70,37 @@ void loop() {
   float ang_comp = (180*angulo_complementario)/pi;  
   float vel_ang  = velocidad_pendulo * 180 / pi;
 
+  //EJERCICIO 1
+  /*
   ang_k1 = Ad[0][0] * ang_k + Ad[0][1] * vang_k + L[0] * ( angulo_complementario- ang_k); //sin Bd pq no controlamos todavia
   vang_k1 = Ad[1][0] * ang_k + Ad[1][1] * vang_k + L[1] * (angulo_complementario - ang_k);
+  */
 
+  //EJERCICIO 2
   
-
+  ang_k1 = Ad[0][0] * ang_k + Ad[0][1] * vang_k + Ad[0][2] * bias_k + L[0][0] * (angulo_complementario - ang_k) + L[0][1] * (velocidad_pendulo + bias - vang_k - bias_k);
+  vang_k1 = Ad[1][0] * ang_k + Ad[1][1] * vang_k + Ad[1][2] * bias_k + L[1][0] * (angulo_complementario - ang_k) + L[1][1] * (velocidad_pendulo + bias - vang_k - bias_k);
+  bias_k1 = Ad[2][0] * ang_k + Ad[2][1] * vang_k + Ad[2][2] * bias_k + L[2][0] * (angulo_complementario - ang_k) + L[2][1] * (velocidad_pendulo + bias - vang_k - bias_k);
+  
 
   //actualizacion estados
   ang_k = ang_k1;
   vang_k = vang_k1;
+  bias_k = bias_k1;
 
   //traduzco a rad/s
   float angulo_k = ang_k * 180/pi;
   float vel_ang_k  = vang_k * 180 / pi;
+  float bias_grad_k = bias_k * 180 / pi;
 
 
-  matlab_send(ang_comp,angulo_k,vel_ang,vel_ang_k,0,0,0);
+  matlab_send(ang_comp,angulo_k,vel_ang,vel_ang_k,bias*(180/pi),bias_grad_k,0);
 
   
   //Temperatura: temp.temperature
   unsigned long t_final= micros();
-  dif = t_final - t_inicial;
-  Serial.print(10000-dif);
+  //dif = t_final - t_inicial;
+  //Serial.print(10000-dif);
   delayMicroseconds(10000-(t_final-t_inicial));
 
 }
