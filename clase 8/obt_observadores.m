@@ -36,11 +36,13 @@ C_r = [1 0];
 
 L_r = place(A_r',C_r',P_Z)';
 
+p = real(polos)*100;
 
 %Sumando Observador del Sesgo
-A_t_b = [A(2,2) A(2,1), 0; A(1,2) A(1,1), 0; 0, 0, 1];
+A_t_b = [A(2,2) A(2,1), 0; A(1,2) A(1,1), 0; 0, 0, 0];
 C_t_b = [1, 0, 0; 0, 1, 1];
 A_d_b = eye(size(A_t_b,1))+A_t_b.*T;
 
-P_Z_bias=[0.8199, 0.8199, 0.95];
-L_b = place(A_d_b',C_t_b',P_Z_bias)';
+P_zb = [exp(p.*T) 0.95];
+P_Z_bias=[0.8199, 0.8199, 0.98];
+L_b = place(A_d_b',C_t_b',P_zb)';

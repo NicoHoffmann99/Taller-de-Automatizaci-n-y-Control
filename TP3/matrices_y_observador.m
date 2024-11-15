@@ -21,22 +21,32 @@ Ts=0.01;
 %Planta total
 P=zpk([0 0], polos, -k);
 
-A=[0 0 1 0; 0 0 0 1; -53.4 -0.256 171.99 21.85; 0 -245.7 0 -31.22];
-B=[0 0 -171.99 245.7];
+A=[0 0 1 0; 0 0 0 1; -53.4 170.57047 -0.256 21.854; 0 -243.6721 0 -31.22];
+polos = eig(A);
+B=[0 0 -170.57047 243.6721];
 C=[1 0 0 0; 0 1 0 0];
 D = [0 0];
+sys = ss(A,B',C,0);
+t=linspace(0,1000*0.01,1001);
+[salida,tiempo] = initial(sys,[15,0,0,0],t);
+plot(tiempo,salida);
 
-A_d = eye(size(A,1))+A.*Ts;
-B_d = B.*Ts;
-C_d= C;
-D_d = D;
 
-polos_observador_real = real([p1 p2 p_1 p_2]);
-polos_observador_imaginario = imag([p1 p2 p_1 p_2])*1i;
+figure();
+sys_d=c2d(sys,Ts,'zoh');
+A_d = sys_d.A;
+B_d = sys_d.B;
+C_d = sys_d.C;
+D_d = sys_d.D;
 
-factor_polos = 5;
+step(20*sys_d,t);
+
+polos_observador_real = real(polos);
+polos_observador_imaginario = imag(polos)*1i;
+
+factor_polos = 20;
 P_Z = exp(factor_polos*polos_observador_real.*Ts);
-L = place(A_d',C',P_Z)';
+L = place(A_d',C_d',P_Z)';
 
 O = (A_d - L*C_d);
 ava =eig(O);

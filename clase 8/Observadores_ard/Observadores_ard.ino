@@ -17,6 +17,7 @@ float L[2] = {0.1416, 0.014};
 */
 
 //EJERCICIO 2
+
 float Ad[3][3] = {{1.0, 0.01, 0},{-0.5337,0.9974, 0}, {0, 0, 1}};
 float Cd[2][3] = {{1, 0, 0}, {0, 1, 1}};
 float L[3][2] = {{0.2271, -0.0012},{0.3008, 0.0218},{-0.8470, 0.2022}};
@@ -26,8 +27,10 @@ float angulo_giro_x=0;
 float angulo_ace_x=0;
 float angulo_complementario=0;
 float velocidad_pendulo = 0;
-float bias = 10 * (3.1415/180);
-
+float angulo_theta = 0;
+float bi_pendulo = 0;
+float bi_vel = 0;
+float bias = 10;
 //inicializado de estimadores
 float vang_k = 0;
 float vang_k1 = 0;
@@ -38,8 +41,10 @@ float bias_k1 = 0;
 
 //valores para filtro compl
 float alpha=0.1;
-float periodo=0.01;
+float Ts=0.01;
 float pi=3.1415;
+
+sensors_event_t a, g, temp;
 
 void setup(void) {
   Serial.begin(115200);
@@ -47,7 +52,9 @@ void setup(void) {
   mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
   mpu.setGyroRange(MPU6050_RANGE_500_DEG);
   mpu.setFilterBandwidth(MPU6050_BAND_44_HZ);
-
+  bi_pendulo=get_bias_angulo_IMU();
+  bi_vel = get_bias_gyro_IMU();
+  
   delay(100);
 }
 
@@ -55,46 +62,45 @@ void loop() {
   //Tiempo de lectura de datos + transformacion
   static unsigned long dif;
   unsigned long t_inicial=micros();
-  sensors_event_t a, g, temp;
-  mpu.getEvent(&a, &g, &temp);
-  
-  //angulo
-  angulo_giro_x= angulo_complementario + periodo*g.gyro.x;
-  angulo_ace_x= atan2(a.acceleration.y,a.acceleration.z);
-  angulo_complementario= (1-alpha)*angulo_giro_x + angulo_ace_x*alpha;
-
+  angulo_theta = get_angulo_IMU();
+  //Serial.println(angulo_theta);
   //velocidad
-   velocidad_pendulo = g.gyro.x ;
+  velocidad_pendulo = g.gyro.x*(180/pi) - bi_vel ;
+  //Serial.println(velocidad_pendulo);
+
 
   //rad/s
-  float ang_comp = (180*angulo_complementario)/pi;  
-  float vel_ang  = velocidad_pendulo * 180 / pi;
+  float ang_comp = angulo_theta;  
+  float vel_ang  = velocidad_pendulo;
 
   //EJERCICIO 1
   /*
-  ang_k1 = Ad[0][0] * ang_k + Ad[0][1] * vang_k + L[0] * ( angulo_complementario- ang_k); //sin Bd pq no controlamos todavia
-  vang_k1 = Ad[1][0] * ang_k + Ad[1][1] * vang_k + L[1] * (angulo_complementario - ang_k);
+  ang_k1 = Ad[0][0] * ang_k + Ad[0][1] * vang_k + L[0] * ( angulo_theta- ang_k); //sin Bd pq no controlamos todavia
+  vang_k1 = Ad[1][0] * ang_k + Ad[1][1] * vang_k + L[1] * (angulo_theta - ang_k);
   */
 
   //EJERCICIO 2
   
-  ang_k1 = Ad[0][0] * ang_k + Ad[0][1] * vang_k + Ad[0][2] * bias_k + L[0][0] * (angulo_complementario - ang_k) + L[0][1] * (velocidad_pendulo + bias - vang_k - bias_k);
-  vang_k1 = Ad[1][0] * ang_k + Ad[1][1] * vang_k + Ad[1][2] * bias_k + L[1][0] * (angulo_complementario - ang_k) + L[1][1] * (velocidad_pendulo + bias - vang_k - bias_k);
-  bias_k1 = Ad[2][0] * ang_k + Ad[2][1] * vang_k + Ad[2][2] * bias_k + L[2][0] * (angulo_complementario - ang_k) + L[2][1] * (velocidad_pendulo + bias - vang_k - bias_k);
+  ang_k1 = Ad[0][0] * ang_k + Ad[0][1] * vang_k + Ad[0][2] * bias_k + L[0][0] * (angulo_theta - ang_k) + L[0][1] * (velocidad_pendulo + bias - vang_k - bias_k);
+  vang_k1 = Ad[1][0] * ang_k + Ad[1][1] * vang_k + Ad[1][2] * bias_k + L[1][0] * (angulo_theta - ang_k) + L[1][1] * (velocidad_pendulo + bias - vang_k - bias_k);
+  bias_k1 = Ad[2][0] * ang_k + Ad[2][1] * vang_k + Ad[2][2] * bias_k + L[2][0] * (angulo_theta - ang_k) + L[2][1] * (velocidad_pendulo + bias - vang_k - bias_k);
   
 
   //actualizacion estados
   ang_k = ang_k1;
+  //Serial.println(ang_k);
   vang_k = vang_k1;
+  //Serial.println(vang_k);
   bias_k = bias_k1;
+  //Serial.println(bias_k);
 
   //traduzco a rad/s
-  float angulo_k = ang_k * 180/pi;
-  float vel_ang_k  = vang_k * 180 / pi;
-  float bias_grad_k = bias_k * 180 / pi;
+  float angulo_k = ang_k ;
+  float vel_ang_k  = vang_k ;
+  float bias_grad_k = bias_k ;
 
 
-  matlab_send(ang_comp,angulo_k,vel_ang,vel_ang_k,bias*(180/pi),bias_grad_k,0);
+  matlab_send(ang_comp,angulo_k,vel_ang,vel_ang_k,bias,bias_grad_k,0);
 
   
   //Temperatura: temp.temperature
@@ -124,3 +130,39 @@ void matlab_send(float ace1, float ace2, float ace3, float giro1, float giro2, f
   //etc con mas datos tipo float. Tambien podría pasarse como parámetro a esta funcion un array de floats.
 }
 
+float get_bias_angulo_IMU(){
+  float bias=0;
+  for(int i=0;i<=100;i++){
+    unsigned long tiempo_inicial=millis();
+    mpu.getEvent(&a, &g, &temp);
+    angulo_giro_x= angulo_complementario + Ts*g.gyro.x;
+    angulo_ace_x= atan2(a.acceleration.y,a.acceleration.z);
+    bias += (1-alpha)*angulo_giro_x + angulo_ace_x*alpha;
+    unsigned long tiempo_final=millis();
+    delay(10-(tiempo_final-tiempo_inicial));
+  }
+  return (bias*(180/pi))/float(10);
+}
+
+float get_bias_gyro_IMU(){
+  float bias=0;
+  for(int i=0;i<=100;i++){
+    unsigned long tiempo_inicial=millis();
+    mpu.getEvent(&a, &g, &temp);
+    float giro = g.gyro.x;
+    bias += giro;
+    unsigned long tiempo_final=millis();
+    delay(10-(tiempo_final-tiempo_inicial));
+  }
+  return (bias*(180/pi))/float(100);
+}
+
+
+float get_angulo_IMU(){
+  //sensors_event_t a, g, temp;
+  mpu.getEvent(&a, &g, &temp);
+  angulo_giro_x= (angulo_complementario + (Ts*g.gyro.x)*(180/pi));
+  angulo_ace_x= atan2(a.acceleration.y,a.acceleration.z)*(180/pi);
+  angulo_complementario= ((1-alpha)*angulo_giro_x + angulo_ace_x*alpha) ;
+  return angulo_complementario - bi_pendulo;
+}
