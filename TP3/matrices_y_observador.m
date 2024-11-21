@@ -44,7 +44,10 @@ step(20*sys_d,t);
 polos_observador_real = real(polos);
 polos_observador_imaginario = imag(polos)*1i;
 
-factor_polos = 20;
+factor_polos_pendulo = 10;
+factor_polos_brazo = 0.7;
+polos_observador_real(1:2)=polos_observador_real(1:2)*factor_polos_pendulo;
+polos_observador_real(3:4)=polos_observador_real(3:4)*factor_polos_brazo;
 P_Z = exp(factor_polos*polos_observador_real.*Ts);
 L = place(A_d',C_d',P_Z)';
 

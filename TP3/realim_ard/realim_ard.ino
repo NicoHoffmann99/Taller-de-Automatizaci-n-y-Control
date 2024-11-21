@@ -19,6 +19,10 @@ float Bd[4] = {-0.0077, 0.0110, -1.4558, 2.0846};
 float Cd[2][4] = {{1, 0, 0, 0},{0, 1, 0, 0}};
 float Dd[2]= {0, 0};
 float L[4][2] = {{1.1055, 0.2020},{0.0000, 0.8244},{18.9733, 17.9969},{0.000, -5.8042}};
+//matrices de control por estados
+float K[4] = {-0.4220, -0.7862, 0.0373, -0.0576};
+
+//float F[][] = {};
 
 
 //constantes del pote
@@ -39,7 +43,7 @@ float velocidad_brazo = 0;
 float angulo_brazo_ant = 0;
 float angulo_brazo_act = 0;
 float angulo_referencia = 0;
-
+float acc_u = 0;
 //inicializado de estimadores
 float vang_pendulo_k = 0;
 float vang_pendulo_k1 = 0;
@@ -83,27 +87,49 @@ void loop() {
   unsigned long t_inicial=micros();
 
   angulo_theta = get_angulo_IMU();
-  angulo_brazo_act = map(analogRead(sensor),pote_menos_50,pote_50,50,-50);
+  angulo_brazo_act = map(analogRead(sensor),pote_50,pote_menos_50,-50,50);
   //Serial.println(angulo_theta);
   //velocidad
   velocidad_pendulo = (g.gyro.x)*(180 / pi) - bi_vel;
-  //Serial.println(angulo_theta);
+  //Serial.println(angulo_brazo_act);
   velocidad_brazo = (angulo_brazo_act - angulo_brazo_ant) / Ts;
   angulo_brazo_ant = angulo_brazo_act; 
   //angulo_referencia = angulo_brazo_act;
-  //observador
-  ang_pendulo_k1 = Ad[0][0] * ang_pendulo_k + Ad[0][1] * ang_brazo_k + Ad[0][2] * vang_pendulo_k + Ad[0][3] * vang_brazo_k + L[0][0] * (angulo_theta - ang_pendulo_k) + L[0][1] * (angulo_brazo_act - ang_brazo_k) + Bd[0] * angulo_referencia;
-  ang_brazo_k1 =   Ad[1][0] * ang_pendulo_k + Ad[1][1] * ang_brazo_k + Ad[1][2] * vang_pendulo_k + Ad[1][3] * vang_brazo_k + L[1][0] * (angulo_theta - ang_pendulo_k) + L[1][1] * (angulo_brazo_act - ang_brazo_k) + Bd[1] * angulo_referencia;
-  vang_pendulo_k1 =Ad[2][0] * ang_pendulo_k + Ad[2][1] * ang_brazo_k + Ad[2][2] * vang_pendulo_k + Ad[2][3] * vang_brazo_k + L[2][0] * (angulo_theta - ang_pendulo_k) + L[2][1] * (angulo_brazo_act - ang_brazo_k) + Bd[2] * angulo_referencia;
-  vang_brazo_k1 =  Ad[3][0] * ang_pendulo_k + Ad[3][1] * ang_brazo_k + Ad[3][2] * vang_pendulo_k + Ad[3][3] * vang_brazo_k + L[3][0] * (angulo_theta - ang_pendulo_k) + L[3][1] * (angulo_brazo_act - ang_brazo_k) + Bd[3] * angulo_referencia;
 
+  
+
+  //observador
+  ang_pendulo_k1 = Ad[0][0] * ang_pendulo_k + Ad[0][1] * ang_brazo_k + Ad[0][2] * vang_pendulo_k + Ad[0][3] * vang_brazo_k + L[0][0] * (angulo_theta - ang_pendulo_k) + L[0][1] * (angulo_brazo_act - ang_brazo_k) + Bd[0]*(acc_u);
+
+  ang_brazo_k1 = Ad[1][0] * ang_pendulo_k + Ad[1][1] * ang_brazo_k + Ad[1][2] * vang_pendulo_k + Ad[1][3] * vang_brazo_k + L[1][0] * (angulo_theta - ang_pendulo_k) + L[1][1] * (angulo_brazo_act - ang_brazo_k) + Bd[1] * (acc_u);
+
+  vang_pendulo_k1 = Ad[2][0] * ang_pendulo_k + Ad[2][1] * ang_brazo_k + Ad[2][2] * vang_pendulo_k + Ad[2][3] * vang_brazo_k + L[2][0] * (angulo_theta - ang_pendulo_k) + L[2][1] * (angulo_brazo_act - ang_brazo_k) + Bd[2] * (acc_u);
+
+  vang_brazo_k1 = Ad[3][0] * ang_pendulo_k + Ad[3][1] * ang_brazo_k + Ad[3][2] * vang_pendulo_k + Ad[3][3] * vang_brazo_k + L[3][0] * (angulo_theta - ang_pendulo_k) + L[3][1] * (angulo_brazo_act - ang_brazo_k) + Bd[3] * (acc_u);
+
+  
   //actualizacion estados
   ang_pendulo_k = ang_pendulo_k1;
   ang_brazo_k = ang_brazo_k1;
+  Serial.println(ang_brazo_k);
   vang_pendulo_k = vang_pendulo_k1;
   vang_brazo_k = vang_brazo_k1;
-  //Serial.println(ang_pendulo_k);
+
+  //control con observados
+  acc_u = K[0]*ang_pendulo_k + K[1] * ang_brazo_k + K[2] * vang_pendulo_k + K[3]*vang_brazo_k; 
+  //traduzco a pwm para que accione segun los observadores actuales
+  Serial.println(acc_u);
   
+  float duty_acc = map(acc_u,50,-50,duty_min,duty_max);
+  Timer1.pwm(PWMoutput,duty_acc);
+  
+
+
+
+  
+  
+  //Serial.println(vang_pendulo_k);
+  /*
   static int cambiar=0;
   if (cambiar == 1500) {
     if (angulo_referencia==0){
@@ -117,9 +143,9 @@ void loop() {
   cambiar++;
   float duty_ang = map(angulo_referencia,-50,50,duty_min,duty_max);
   Timer1.pwm(PWMoutput,duty_ang);
-  
+  */
 
-  matlab_send(angulo_theta, ang_pendulo_k, velocidad_pendulo, vang_pendulo_k, angulo_brazo_act, ang_brazo_k, velocidad_brazo, vang_brazo_k);
+  //matlab_send(angulo_theta, ang_pendulo_k, velocidad_pendulo, vang_pendulo_k, angulo_brazo_act, ang_brazo_k, velocidad_brazo, vang_brazo_k);
   unsigned long t_final= micros();
   delayMicroseconds(10000-(t_final-t_inicial));
 }
@@ -184,4 +210,3 @@ float get_bias_gyro_IMU(){
   }
   return (bias*(180/pi))/float(100);
 }
-
