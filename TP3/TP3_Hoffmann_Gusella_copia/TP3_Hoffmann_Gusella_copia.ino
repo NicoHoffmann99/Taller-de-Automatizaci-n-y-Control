@@ -19,15 +19,16 @@ float Bd[4] = {-0.0077, 0.0110, -1.4558, 2.0846};
 float Cd[2][4] = {{1, 0, 0, 0},{0, 1, 0, 0}};
 float Dd[2]= {0, 0};
 float L[4][2] = {{0.215, 0.13},{0.097, 0.0113},{1.6, 0.3},{-0.7800, -0.57}};
+//float L[4][2] = {{0.3184, 0.0132},{0.0921, 0.0161},{3.6270, -2.1184},{-0.7462, -0.6125}};
 //Matrices de Control por realimentación de estados
-float K[4] = {0.1922 ,  0.4555 ,  -0.0393 ,  0.0185};
+float K[4] = {0.6021 ,  0.65051 ,  -0.1067 ,  -0.0990};
 //Matriz de feedfordward
-float F[2] = {0.0000, 0.4045};
+float F[2] = {0.0000, 0.2925};
 //Accion integral
-float H = 0.8578;
+float H = 0.725;
 
 //constantes del pote
-int duty_min=106;
+int duty_min=103;
 int duty_max=230;
 int pote_50=606; //pwm 117
 int pote_menos_50=203; //pwm 218
@@ -43,7 +44,7 @@ float bi_vel = 0;
 float velocidad_brazo = 0;
 float angulo_brazo_ant = 0;
 float angulo_brazo_act = 0;
-float angulo_referencia = 30;
+float angulo_referencia = 10;
 float tita_referencia = 0;
 float acc_u = 0;
 
@@ -101,14 +102,14 @@ void loop() {
   //angulo_referencia = angulo_brazo_act;
 
   //observador
-  /*
+  
   ang_pendulo_k1 = Ad[0][0] * ang_pendulo_k + Ad[0][1] * ang_brazo_k + Ad[0][2] * vang_pendulo_k + Ad[0][3] * vang_brazo_k + L[0][0] * (angulo_theta - ang_pendulo_k) + L[0][1] * (angulo_brazo_act - ang_brazo_k) + Bd[0] * angulo_referencia;
   ang_brazo_k1 =   Ad[1][0] * ang_pendulo_k + Ad[1][1] * ang_brazo_k + Ad[1][2] * vang_pendulo_k + Ad[1][3] * vang_brazo_k + L[1][0] * (angulo_theta - ang_pendulo_k) + L[1][1] * (angulo_brazo_act - ang_brazo_k) + Bd[1] * angulo_referencia;
   vang_pendulo_k1 =Ad[2][0] * ang_pendulo_k + Ad[2][1] * ang_brazo_k + Ad[2][2] * vang_pendulo_k + Ad[2][3] * vang_brazo_k + L[2][0] * (angulo_theta - ang_pendulo_k) + L[2][1] * (angulo_brazo_act - ang_brazo_k) + Bd[2] * angulo_referencia;
   vang_brazo_k1 =  Ad[3][0] * ang_pendulo_k + Ad[3][1] * ang_brazo_k + Ad[3][2] * vang_pendulo_k + Ad[3][3] * vang_brazo_k + L[3][0] * (angulo_theta - ang_pendulo_k) + L[3][1] * (angulo_brazo_act - ang_brazo_k) + Bd[3] * angulo_referencia;
-  */
-
   
+
+  /*
   //realimentación de estados
   ang_pendulo_k1 = Ad[0][0] * ang_pendulo_k + Ad[0][1] * ang_brazo_k + Ad[0][2] * vang_pendulo_k + Ad[0][3] * vang_brazo_k + L[0][0] * (angulo_theta - ang_pendulo_k) + L[0][1] * (angulo_brazo_act - ang_brazo_k) + Bd[0]*(acc_u);
   ang_brazo_k1 = Ad[1][0] * ang_pendulo_k + Ad[1][1] * ang_brazo_k + Ad[1][2] * vang_pendulo_k + Ad[1][3] * vang_brazo_k + L[1][0] * (angulo_theta - ang_pendulo_k) + L[1][1] * (angulo_brazo_act - ang_brazo_k) + Bd[1] * (acc_u);
@@ -125,7 +126,7 @@ void loop() {
 
   float duty_acc = map(acc_u,-50,50,duty_min,duty_max);
   Timer1.pwm(PWMoutput,duty_acc);
-
+  */
   
 
   //actualizacion estados
@@ -138,14 +139,14 @@ void loop() {
   
 
   //Rutina Movimiento Brazo
-  /*
+  
   static int cambiar=0;
-  if (cambiar == 1000) {
-    if (angulo_referencia==-30){
-      angulo_referencia=30;
+  if (cambiar == 2000) {
+    if (angulo_referencia==-15){
+      angulo_referencia=10;
     }
-    else if (angulo_referencia == 30){
-      angulo_referencia=-30;
+    else if (angulo_referencia == 10){
+      angulo_referencia=-15;
     }
     //else{
      // angulo_referencia=20;
@@ -153,17 +154,17 @@ void loop() {
     cambiar = 0;
   }
   cambiar++;
-*/
-  //float duty_ang = map(angulo_referencia,-50,50,duty_min,duty_max);
-  //Timer1.pwm(PWMoutput,duty_ang);
+  
+  float duty_ang = map(angulo_referencia,-50,50,duty_min,duty_max);
+  Timer1.pwm(PWMoutput,duty_ang);
   
 
-  matlab_send(angulo_theta, ang_pendulo_k, velocidad_pendulo, vang_pendulo_k, angulo_brazo_act, ang_brazo_k, velocidad_brazo, vang_brazo_k);
+  matlab_send(angulo_theta, ang_pendulo_k, velocidad_pendulo, vang_pendulo_k, angulo_brazo_act, ang_brazo_k, velocidad_brazo, vang_brazo_k, angulo_referencia);
   unsigned long t_final= micros();
   delayMicroseconds(10000-(t_final-t_inicial));
 }
 
-void matlab_send(float ace1, float ace2, float ace3, float giro1, float giro2, float giro3, float temp1, float temp2){
+void matlab_send(float ace1, float ace2, float ace3, float giro1, float giro2, float giro3, float temp1, float temp2, float phi_ref){
   Serial.write("abcd");
   byte * b = (byte *) &ace1;
   Serial.write(b,4);
@@ -181,7 +182,8 @@ void matlab_send(float ace1, float ace2, float ace3, float giro1, float giro2, f
   Serial.write(b,4);
   b = (byte *) &temp2;
   Serial.write(b,4);
-
+  b = (byte *) &phi_ref;
+  Serial.write(b,4);
 }
 
 void timer_callback()

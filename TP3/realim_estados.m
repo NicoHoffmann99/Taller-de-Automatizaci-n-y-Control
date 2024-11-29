@@ -66,9 +66,12 @@ B_integral = [B_d; 0];
 float K[4] = {0.5421 ,  0.59551 ,  -0.0700 ,  -0.0620};
 %}
 
-polos_integral = [-4.4943 -4.6112 -1.7209-8.3459i -1.7209+8.3459i -7];
+%polos_integral = [-4.4943 -4.6112 -1.7209-8.3459i -1.7209+8.3459i -7];
+polos_integral = [-12 -12 -1.2-7.3459i -1.2+7.3459i -3];
 polos_integral_discretos = exp(polos_integral*Ts);
 H = acker(A_integral, -B_integral, polos_integral_discretos);
 ava_integral = eig(A_integral +B_integral * H);
 
+%{ H = { 0.1294   -0.3714   -0.1216   -0.0966    0.6276};
+%}
 

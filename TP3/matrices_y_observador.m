@@ -43,8 +43,9 @@ step(20*sys_d,t);
 
 polos_observador = real(polos(1:2))*40 + 1i * imag(polos(1:2)) ;
 polos_observador_imaginario = imag(polos(1:2))*1i;
-factor_polos_pendulo = 1;
-factor_polos_brazo = 1.5;
+%pendulo = 1, brazp =1.5
+factor_polos_pendulo = 10;
+factor_polos_brazo = 10;
 p_obs_c = [polos_observador(1) polos_observador(2) p1 p2];
 %p_obs_c = [-abs(polos(1)) -abs(polos(2)) p1 p2];
 p_obs_c(1:2) = p_obs_c(1:2)*factor_polos_pendulo; 
