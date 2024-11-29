@@ -210,32 +210,73 @@ subplot(2, 2, 1);
 plot(tiempo_1,salida_1,'LineWidth', 1.5);
 grid on;
 title('Angulo $\theta$', 'Interpreter', 'latex');
+ylabel('$\theta$ [grados]', 'Interpreter', 'latex');
+xlabel('tiempo [s]', 'Interpreter', 'latex');
+xlim(0,5);
 subplot(2, 2, 2);
 plot(tiempo_2,salida_2, 'r', 'LineWidth', 1.5);
 title('Angulo $\phi$', 'Interpreter', 'latex');
+ylabel('$\phi$ [grados]', 'Interpreter', 'latex');
+xlabel('tiempo [s]', 'Interpreter', 'latex');
+xlim(0,5);
 grid on;
 subplot(2, 2, 3);
 plot(tiempo_3,salida_3,'g', 'LineWidth', 1.5);
 title('Velocidad angular $\dot{\theta}$', 'Interpreter', 'latex');
+ylabel('$\dot{\theta}$ [grados/s]', 'Interpreter', 'latex');
+xlabel('tiempo [s]', 'Interpreter', 'latex');
+xlim(0,5);
 grid on;
 subplot(2, 2, 4);
 plot(tiempo_4,salida_4,'y' , 'LineWidth', 1.5 );
 title('Velocidad angular $\dot{\phi}$', 'Interpreter', 'latex');
+ylabel('$\dot{\phi}$ [grados/s]', 'Interpreter', 'latex');
 xlabel('tiempo [s]', 'Interpreter', 'latex');
+xlim(0,5);
 grid on;
 
-sgtitle('Respuesta al impulso - Accion integral', 'Interpreter', 'latex');
+sgtitle('Respuesta al impulso - Realimentacion por variables de estado', 'Interpreter', 'latex');
 
 %Simulación sumando la matriz de feedfordward
 F = pinv(C_d * inv(eye(size(A_d)) - (A_d + B_d * K)) * B_d);
 sys_feedfordward = ss(A_realim_est,B_d*F(2),eye(4),0,Ts);
-figure();
 
 [salida_1, tiempo_1] = step(20*sys_feedfordward(1),t);
 [salida_2, tiempo_2] = step(20*sys_feedfordward(2),t);
 [salida_3, tiempo_3] = step(20*sys_feedfordward(3),t);
 [salida_4, tiempo_4] = step(20*sys_feedfordward(4),t);
 
+figure();
+subplot(2, 2, 1);
+plot(tiempo_1,salida_1,'LineWidth', 1.5);
+grid on;
+title('Angulo $\theta$', 'Interpreter', 'latex');
+ylabel('$\theta$ [grados]', 'Interpreter', 'latex');
+xlabel('tiempo [s]', 'Interpreter', 'latex');
+xlim(0,5);
+subplot(2, 2, 2);
+plot(tiempo_2,salida_2, 'r', 'LineWidth', 1.5);
+title('Angulo $\phi$', 'Interpreter', 'latex');
+ylabel('$\phi$ [grados]', 'Interpreter', 'latex');
+xlabel('tiempo [s]', 'Interpreter', 'latex');
+xlim(0,5);
+grid on;
+subplot(2, 2, 3);
+plot(tiempo_3,salida_3,'g', 'LineWidth', 1.5);
+title('Velocidad angular $\dot{\theta}$', 'Interpreter', 'latex');
+ylabel('$\dot{\theta}$ [grados/s]', 'Interpreter', 'latex');
+xlabel('tiempo [s]', 'Interpreter', 'latex');
+xlim(0,5);
+grid on;
+subplot(2, 2, 4);
+plot(tiempo_4,salida_4,'y' , 'LineWidth', 1.5 );
+title('Velocidad angular $\dot{\phi}$', 'Interpreter', 'latex');
+ylabel('$\dot{\phi}$ [grados/s]', 'Interpreter', 'latex');
+xlabel('tiempo [s]', 'Interpreter', 'latex');
+xlim(0,5);
+grid on;
+
+sgtitle('Respuesta al escalon con $\phi_{ref}=20^{\circ}$ - Feedfordward', 'Interpreter', 'latex');
 
 %Simulacion de acción integral
 C_cont_i = [0 1 0 0];
@@ -243,16 +284,89 @@ I = eye(size(C_cont_i, 1));
 A_integral = [A_d, zeros(size(A_d, 1), size(I, 1));-C_cont_i*Ts, I];
 B_integral = [B_d; 0];
 
-polos_integral = [-12.6112 + 0.0000i -3.209 + 7.3459i -3.209 - 7.3459i -12.4943 + 0.0000i -2];
+polos_integral = [-12.6112 + 0.0000i -3.209 + 7.3459i -3.209 - 7.3459i -12.4943 + 0.0000i -4];
 polos_integral_discretos = exp(polos_integral*Ts);
 H = acker(A_integral, -B_integral, polos_integral_discretos);
 
 A_integral_simulacion = A_integral + B_integral*H;
-sys_acc_integral = ss(A_integral_simulacion,[B_integral [0; 0; 0; 0; 0.01]],[1 0 0 0 0;0 1 0 0 0], 0, Ts); 
+sys_acc_integral = ss(A_integral_simulacion,[B_integral [0; 0; 0; 0; 1]*Ts],[1 0 0 0 0;0 1 0 0 0;0 0 1 0 0; 0 0 0 1 0], 0, Ts); 
+
+%Respuesta al escalón con acción integral
+[salida_1, tiempo_1] = step(20*sys_acc_integral(1,1),t);
+[salida_2, tiempo_2] = step(20*sys_acc_integral(2,2),t);
+[salida_3, tiempo_3] = step(20*sys_acc_integral(3,1),t);
+[salida_4, tiempo_4] = step(20*sys_acc_integral(4,2),t);
 
 figure();
-step(20*sys_acc_integral,t);
+subplot(2, 2, 1);
+plot(tiempo_1,salida_1,'LineWidth', 1.5);
+grid on;
+title('Angulo $\theta$', 'Interpreter', 'latex');
+ylabel('$\theta$ [grados]', 'Interpreter', 'latex');
+xlabel('tiempo [s]', 'Interpreter', 'latex');
+xlim(0,5);
+subplot(2, 2, 2);
+plot(tiempo_2,salida_2, 'r', 'LineWidth', 1.5);
+title('Angulo $\phi$', 'Interpreter', 'latex');
+ylabel('$\phi$ [grados]', 'Interpreter', 'latex');
+xlabel('tiempo [s]', 'Interpreter', 'latex');
+xlim(0,5);
+grid on;
+subplot(2, 2, 3);
+plot(tiempo_3,salida_3,'g', 'LineWidth', 1.5);
+title('Velocidad angular $\dot{\theta}$', 'Interpreter', 'latex');
+ylabel('$\dot{\theta}$ [grados/s]', 'Interpreter', 'latex');
+xlabel('tiempo [s]', 'Interpreter', 'latex');
+xlim(0,5);
+grid on;
+subplot(2, 2, 4);
+plot(tiempo_4,salida_4,'y' , 'LineWidth', 1.5 );
+title('Velocidad angular $\dot{\phi}$', 'Interpreter', 'latex');
+ylabel('$\dot{\phi}$ [grados/s]', 'Interpreter', 'latex');
+xlabel('tiempo [s]', 'Interpreter', 'latex');
+xlim(0,5);
+grid on;
 
+sgtitle('Respuesta al escalon con $\phi_{ref}=20^{\circ}$ - Accion Integral', 'Interpreter', 'latex');
+
+
+[salida_1, tiempo_1] = initial(sys_acc_integral(1,1),[0,0,vel_theta,0, 0],t);
+[salida_2, tiempo_2] = initial(sys_acc_integral(2,1),[0,0,vel_theta,0, 0],t);
+[salida_3, tiempo_3] = initial(sys_acc_integral(3,1),[0,0,vel_theta,0, 0],t);
+[salida_4, tiempo_4] = initial(sys_acc_integral(4,1),[0,0,vel_theta,0, 0],t);
+
+figure();
+
+subplot(2, 2, 1);
+plot(tiempo_1,salida_1,'LineWidth', 1.5);
+grid on;
+title('Angulo $\theta$', 'Interpreter', 'latex');
+ylabel('$\theta$ [grados]', 'Interpreter', 'latex');
+xlabel('tiempo [s]', 'Interpreter', 'latex');
+xlim(0,5);
+subplot(2, 2, 2);
+plot(tiempo_2,salida_2, 'r', 'LineWidth', 1.5);
+title('Angulo $\phi$', 'Interpreter', 'latex');
+ylabel('$\phi$ [grados]', 'Interpreter', 'latex');
+xlabel('tiempo [s]', 'Interpreter', 'latex');
+xlim(0,5);
+grid on;
+subplot(2, 2, 3);
+plot(tiempo_3,salida_3,'g', 'LineWidth', 1.5);
+title('Velocidad angular $\dot{\theta}$', 'Interpreter', 'latex');
+ylabel('$\dot{\theta}$ [grados/s]', 'Interpreter', 'latex');
+xlabel('tiempo [s]', 'Interpreter', 'latex');
+xlim(0,5);
+grid on;
+subplot(2, 2, 4);
+plot(tiempo_4,salida_4,'y' , 'LineWidth', 1.5 );
+title('Velocidad angular $\dot{\phi}$', 'Interpreter', 'latex');
+ylabel('$\dot{\phi}$ [grados/s]', 'Interpreter', 'latex');
+xlabel('tiempo [s]', 'Interpreter', 'latex');
+xlim(0,5);
+grid on;
+
+sgtitle('Respuesta a una perturbación tipo impulso - Accion Integral', 'Interpreter', 'latex');
 
 
 
