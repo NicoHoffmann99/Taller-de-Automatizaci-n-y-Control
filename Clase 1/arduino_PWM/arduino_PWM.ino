@@ -19,8 +19,17 @@ void setup()
 
 void loop(){
   unsigned long tiempo_inicial=millis();
-  float duty=map(analogRead(sensor),0,1023,duty_min,duty_max);
-  Timer1.pwm(PWMoutput,duty);
+  
+  int pote = analogRead(sensor);
+  float duty=map(pote,0,1023,duty_min,duty_max);
+  Serial.println(map(analogRead(sensor),0,1023,0,280));
+  //Timer1.pwm(PWMoutput,duty);
+  
+  //Serial.println("duty servo: %f ",duty);
+  //Serial.println("lectura pote: %d", pote);
+  
+  Serial.println(pote);
+  
   unsigned long tiempo_final=millis();
   delay(10-(tiempo_final-tiempo_inicial));
 }

@@ -29,8 +29,8 @@ float pi=3.1415;
 //int duty_min=265;
 int duty_min=106;
 int duty_max=230;
-int pote_50=606; //pwm 117
-int pote_menos_50=203; //pwm 218
+int pote_50=394; //pwm 117
+int pote_menos_50=756; //pwm 218
 
 
 //Los límites de phi son -50 y 50 y estan asociados correspondientemente a duty_max y duty_min.

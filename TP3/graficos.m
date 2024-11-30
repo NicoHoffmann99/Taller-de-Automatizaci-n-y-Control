@@ -174,6 +174,23 @@ xlim([tiempo(1) tiempo(2000)]);
 
 
 %% SIMULACIONES
+
+
+%importar datos simulink
+t_inicial = ;
+t_final = ;
+phi = out.phi(t_inicial:t_final);
+phi_obs = out.phi_obs(t_inicial:t_final);
+theta = out.theta_real(t_inicial:t_final);
+theta_obs = out.theta_obs(t_inicial:t_final);
+vel_phi = out.vel_phi(t_inicial:t_final);
+vel_phi_obs = out.vel_phi_obs(t_inicial:t_final);
+vel_theta = out.vel_theta(t_inicial:t_final);
+vel_theta_obs = out.vel_theta_obs(t_inicial:t_final);
+tiempo = out.tout(t_inicial:t_final);
+
+
+
 %Simulaciones por realimentacion de estado
 Ts=0.01;
 
@@ -190,16 +207,17 @@ B_d = sys_d.B;
 C_d = sys_d.C;
 D_d = sys_d.D;
 
-
-p_realim = [-12.6112 + 0.0000i -3.209 + 7.3459i -3.209 - 7.3459i -12.4943 + 0.0000i];
+p_realim = [-8.6112 + 0.0000i -1.509 + 7.3459i -1.509 - 7.3459i -8.4943 + 0.0000i];
+%float K[4] = {0.2217 ,  0.6697 ,  -0.0078 ,  0.0415};
+%p_realim = [-10.6112 + 0.0000i -1.909 + 7.3459i -1.909 - 7.3459i -10.4943 + 0.0000i];
 p_realim_disc = exp(p_realim.*Ts);
 K = acker(A_d,-B_d,p_realim_disc);
-
+K = [0.65, 0.5, -0.07, -0.06];
 A_realim_est = A_d + B_d*K;
 sys_impulso = ss(A_realim_est,B_d,eye(4),0,Ts);
 t=linspace(0,500*0.01,501);
 %initial con un impulso a la velocidad theta
-vel_theta = 70;
+vel_theta = -150;
 [salida_1, tiempo_1] = initial(sys_impulso(1),[0,0,vel_theta,0],t);
 [salida_2, tiempo_2] = initial(sys_impulso(2),[0,0,vel_theta,0],t);
 [salida_3, tiempo_3] = initial(sys_impulso(3),[0,0,vel_theta,0],t);
@@ -284,7 +302,8 @@ I = eye(size(C_cont_i, 1));
 A_integral = [A_d, zeros(size(A_d, 1), size(I, 1));-C_cont_i*Ts, I];
 B_integral = [B_d; 0];
 
-polos_integral = [-12.6112 + 0.0000i -3.209 + 7.3459i -3.209 - 7.3459i -12.4943 + 0.0000i -4];
+polos_integral = [-23.7862 + 0.0000i -2.2154 + 8.0974i -2.2154 - 8.0974i -5.4994 + 0.0000i -1];
+%polos_integral = [-12.7862 + 0.0000i -2.2154 + 8.0974i -11.2154 - 8.0974i -3.4994 + 0.0000i -2];
 polos_integral_discretos = exp(polos_integral*Ts);
 H = acker(A_integral, -B_integral, polos_integral_discretos);
 

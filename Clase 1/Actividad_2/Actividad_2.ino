@@ -5,14 +5,14 @@
 
 //int duty_max=21;
 //int duty_min=265;
-int duty_min=117;
-int duty_max=218;
-int pote_50=566; //pwm 117
-int pote_menos_50=232; //pwm 218
+int duty_min=98;
+int duty_max=198;
+int pote_50=392; //pwm 117
+int pote_menos_50=742; //pwm 218
 //Los límites de phi son -50 y 50 y estan asociados correspondientemente a duty_max y duty_min.
 int sensor=14;
 int centro = (duty_max + duty_min)/2;
-int angulo_1 = 0;
+int angulo_1 = 50;
 void setup()
 {
   pinMode(PWMoutput, OUTPUT);
@@ -25,20 +25,20 @@ void setup()
 
 void loop(){
   unsigned long tiempo_inicial=millis();
-  float duty=map(analogRead(sensor),235,567,duty_min,duty_max);
+  //float duty=map(analogRead(sensor),0,1023,,198);
 
   float duty_ang = map(angulo_1, 50,-50,duty_min,duty_max);
   Timer1.pwm(PWMoutput,duty_ang);
-  float angulo =map(analogRead(sensor),235,567,-50,50);//basicamente queremos nuestro angulo limite de -50 a 50 y vimos la correspondencia con el valor q indica el pote ya armado en el pendulo.
+  float angulo =map(analogRead(sensor),pote_menos_50,pote_50,-50,50);//basicamente queremos nuestro angulo limite de -50 a 50 y vimos la correspondencia con el valor q indica el pote ya armado en el pendulo.
   float pos_pote = analogRead(sensor);
   //float angulo = map(angulo, -90, 90, 60, 260);
   static int cambiar=0;
-  if (cambiar == 500) {
-    if (angulo_1==0){
-      angulo_1=30;
+  if (cambiar == 700) {
+    if (angulo_1==-50){
+      angulo_1=50;
     }
     else{
-      angulo_1=0;
+      angulo_1=-50;
     }
     cambiar = 0;
   }
@@ -46,6 +46,7 @@ void loop(){
 
   Serial.println(angulo);
   Serial.println(angulo_1);
+  Serial.println(duty_ang);
   
   Serial.println(pos_pote);
   
